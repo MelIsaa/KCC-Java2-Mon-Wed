@@ -2,6 +2,9 @@ package edu.kcc.ui;
 
 
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -32,7 +35,7 @@ public class UIUtility {
      * Displays a wait prompt and waits for the user to hit the enter key.
      */
     public static void pressEnterToContinue(){
-        System.out.print("\nPress Enter to continue... ");
+        System.out.println("\nPress Enter to continue... ");
         Scanner in = new Scanner(System.in);
         in.nextLine();
     }
@@ -69,7 +72,7 @@ public class UIUtility {
         for (String menuOption : menuOptions) {
             System.out.println("\t" + menuOption);
         }
-        System.out.print(prompt + " ");
+        System.out.println(prompt + " ");
         Scanner in = new Scanner(System.in);
         return in.nextLine().trim();
     }
@@ -151,7 +154,7 @@ public class UIUtility {
      */
     public static String getUserString(String prompt){
         Scanner in = new Scanner(System.in);
-        System.out.print(prompt + " ");
+        System.out.println(prompt + " ");
         return in.nextLine().trim();
     }
 
@@ -170,7 +173,7 @@ public class UIUtility {
         String input;
         boolean needed = true;
         while(needed){
-            System.out.print(prompt + " ");
+            System.out.println(prompt + " ");
             input = in.nextLine();
             try{
                 value = Integer.parseInt(input);
@@ -203,6 +206,97 @@ public class UIUtility {
                 showErrorMessage(outOfBoundsMessage, true);
             } else {
                 needed = false;
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Prompts the user to enter a big decimal.  If the value is not a big
+     * decimal, prints the notBigDecimalMessage and tries again.  Otherwise, 
+     * returns the Big Decimal that was entered.
+     *
+     * @param prompt the prompt text for the user
+     * @param notIntMessage the error message for not a Big Decimal
+     * @return the Big Decimal entered
+     */
+    public static BigDecimal getUserBigDecimal(String prompt, 
+            String notBigDecimalMessage){
+        Scanner in = new Scanner(System.in);
+        BigDecimal value = new BigDecimal(0);
+        String input;
+        boolean needed = true;
+        
+        while(needed){
+            System.out.println(prompt + " ");
+            input = in.nextLine();
+            try{
+                value = new BigDecimal(input);
+                needed = false;
+            }catch(NumberFormatException nfe){
+                showErrorMessage(notBigDecimalMessage, true);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Prompts the user for a Boolean and returns whatever was entered.
+     *
+     * @param prompt the prompt text for the user
+     * @return the Boolean entered by the user
+     */
+    public static Boolean getUserBoolean(String prompt){
+        String input;
+        
+        System.out.println(prompt + " ");
+        Scanner in = new Scanner(System.in);
+        input = in.nextLine().trim();
+        return Boolean.parseBoolean(input);
+        
+    }
+    
+    /**
+     * Prompts the user to enter a big decimal.  If the value is not a big
+     * decimal, prints the notBigDecimalMessage and tries again.  Otherwise, 
+     * returns the Big Decimal that was entered.
+     *
+     * @param prompt the prompt text for the user
+     * @param notIntMessage the error message for not a Big Decimal
+     * @return the Big Decimal entered
+     */
+    public static LocalDateTime getUserLocalDateTime(String prompt){
+        DateTimeFormatter formatter = 
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        
+        Scanner in = new Scanner(System.in);
+        String month = "1";
+        String day = "1";
+        String year = "2020";
+        String hour = "00";
+        String minute = "00";
+        LocalDateTime value = LocalDateTime.parse("2020-11-18 02:11", formatter);
+        boolean needed = true;
+        
+        
+        while(needed){
+            System.out.println(prompt + " ");
+            System.out.println("Enter the day: ");
+            day = in.nextLine();
+            System.out.println("Enter the month (MM format): ");
+            month = in.nextLine();            
+            System.out.println("Enter the year (YYYY format): ");
+            day = in.nextLine();
+            System.out.println("Enter the hour (hh format): ");
+            day = in.nextLine();
+            System.out.println("Enter the minute (mm format): ");
+            minute = in.nextLine();  
+            try{
+                value = LocalDateTime.parse(year + "-" + month + "-" + day +
+                        " " + hour + ":" + minute);
+                needed = false;
+            }catch(NumberFormatException nfe){
+                showErrorMessage("Error: " + nfe, true);
             }
         }
         return value;

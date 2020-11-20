@@ -28,15 +28,16 @@ public class AnimalDAOMySQL implements AnimalDAO {
     private Connection buildConnection() throws SQLException {
         String databaseUrl = "localhost";
         String databasePort = "3306";
-        String databaseName = "animals";
+        String databaseName = "javaii_final_project";
         String userName = "root";
-        String password = "password";
+        String password = "NCC1701D";
 
         String connectionString = "jdbc:mysql://" + databaseUrl + ":"
                 + databasePort + "/" + databaseName + "?"
                 + "user=" + userName + "&"
                 + "password=" + password + "&"
                 + "useSSL=false&serverTimezone=UTC";
+        
         return DriverManager.getConnection(connectionString);
     }
 
@@ -44,48 +45,51 @@ public class AnimalDAOMySQL implements AnimalDAO {
 
         try (Connection conn = buildConnection()) {
             if (conn.isValid(2)) {
-                animals = new ArrayList<>();
-                CallableStatement callableStatement
-                        = conn.prepareCall("Call sp_get_all_Animal();");
-                ResultSet resultSet = callableStatement.executeQuery();
-                String id;
-                String name;
-                String species;
-                String gender;
-                int age;
-                boolean fixed;
-                int legs;
-                BigDecimal weight;
-                LocalDate dateAdded;
-                LocalDateTime lastFeedingTime;
-                while (resultSet.next()) {
-                    id = resultSet.getString("Id");
-                    name = resultSet.getString("Name");
-                    species = resultSet.getString("Species");
-                    gender = resultSet.getString("Gender");
-                    age = resultSet.getInt("Age");
-                    fixed = resultSet.getBoolean("Fixed");
-                    legs = resultSet.getInt("Legs");
-                    weight = resultSet.getBigDecimal("Weight");
-                    dateAdded
-                            = resultSet.getObject("Date_Added", LocalDate.class);
-                    lastFeedingTime
-                            = resultSet.getObject("Last_Feeding_Time",
-                                    LocalDateTime.class);
-                    animals.add(new Animal(
-                            id,
-                            name,
-                            gender,
-                            age,
-                            fixed,
-                            legs,
-                            weight,
-                            dateAdded,
-                            lastFeedingTime
-                    ));
+                try (
+                        CallableStatement callableStatement = conn.prepareCall("Call sp_show_animals();"); 
+                        ResultSet resultSet = callableStatement.executeQuery()
+                    ) {
+                    
+                    String id;
+                    String name;
+                    String species;
+                    String gender;
+                    int age;
+                    boolean fixed;
+                    int legs;
+                    BigDecimal weight;
+                    LocalDate dateAdded;
+                    LocalDateTime lastFeedingTime;
+                    
+                    animals = new ArrayList<Animal>();
+                    
+                    while (resultSet.next()) {
+                        id = resultSet.getString("Id");
+                        name = resultSet.getString("Animal_Name");
+                        species = resultSet.getString("Species");
+                        gender = resultSet.getString("Gender");
+                        age = resultSet.getInt("Age");
+                        fixed = resultSet.getBoolean("Fixed");
+                        legs = resultSet.getInt("Legs");
+                        weight = resultSet.getBigDecimal("Weight");
+                        dateAdded = resultSet.getObject(
+                                "Date_Added", LocalDate.class);
+                        lastFeedingTime = resultSet.getObject(
+                                "Last_Feeding_Time", LocalDateTime.class);
+                        animals.add(new Animal(
+                                id,
+                                name,
+                                species,
+                                gender,
+                                age,
+                                fixed,
+                                legs,
+                                weight,
+                                dateAdded,
+                                lastFeedingTime
+                        ));
+                    }
                 }
-                resultSet.close();
-                callableStatement.close();
             }
         } catch (Exception ex) {
             System.out.println("Exception Message: " + ex.getMessage());
@@ -104,17 +108,17 @@ public class AnimalDAOMySQL implements AnimalDAO {
     }
 
     @Override
-    public void createCarRecord(Animal animal) throws AnimalDataException {
+    public void createAnimal(Animal animal) throws AnimalDataException {
         verifyAnimalList();
-        Animal checkAnimal = getAnimalById(animal.getId());
+        Animal checkAnimal = getAnimalByAnimalName(animal.getName());
         if (null != checkAnimal) {
-            throw new AnimalDataException("Animal Ids must be unique...");
+            throw new AnimalDataException("Animal names must be unique...");
         }
         animals.add(animal);
         try {
             Connection conn = buildConnection();
             CallableStatement callableStatement
-                    = conn.prepareCall("CAll sp_add_Animal(?,?,?,?,?,?,?,?);");
+                    = conn.prepareCall("CAll sp_create_new_animal(?,?,?,?,?,?,?,?);");
             callableStatement.setString("Id", animal.getId());
             callableStatement.setString("Name", animal.getName());
             callableStatement.setString("Species", animal.getSpecies());
@@ -123,7 +127,7 @@ public class AnimalDAOMySQL implements AnimalDAO {
             callableStatement.setBoolean("Fixed", animal.getFixed());
             callableStatement.setInt("Legs", animal.getLegs());
             callableStatement.setBigDecimal("Weight", animal.getWeight());
-            callableStatement.setObject("Date_Added", animal.getdateAdded());
+            callableStatement.setObject("Date_Added", animal.getDateAdded());
             callableStatement.setObject("Last_Feeding_Time",
                     animal.getLastFeedingTime());
             
@@ -138,16 +142,37 @@ public class AnimalDAOMySQL implements AnimalDAO {
     }
     
     @Override
-    public Animal getAnimalById(String id) throws AnimalDataException {
+    public ArrayList<Animal> getAllAnimals() throws AnimalDataException {
+        verifyAnimalList();
+        return animals;
+    }
+    
+    @Override
+    public Animal getAnimalByAnimalName(String name) throws AnimalDataException {
         Animal animal = null;
         verifyAnimalList();
         for(Animal tempAnimal : animals) {
-            if(tempAnimal.getId().equals(id)) {
+            if(tempAnimal.getName().equals(name)) {
                 animal = tempAnimal;
                 break;
             }
         
         }
         return animal;
+    }
+    
+    @Override
+    public void updateAnimal(Animal original, Animal updated) throws AnimalDataException {
+        // Code Here
+    }
+    
+    @Override
+    public void deleteAnimal(Animal animal) throws AnimalDataException {
+        // Code Here
+    }
+    
+    @Override
+    public void deleteAnimal(String name) throws AnimalDataException {
+        // Code Here
     }
 }
