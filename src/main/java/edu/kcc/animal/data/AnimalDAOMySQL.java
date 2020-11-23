@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,7 +24,7 @@ import java.util.List;
  */
 public class AnimalDAOMySQL implements AnimalDAO {
 
-    private static ArrayList<Animal> animals;
+    private static HashMap<String, Animal> animals;
 
     private Connection buildConnection() throws SQLException {
         String databaseUrl = "localhost";
@@ -61,7 +62,7 @@ public class AnimalDAOMySQL implements AnimalDAO {
                     LocalDate dateAdded;
                     LocalDateTime lastFeedingTime;
                     
-                    animals = new ArrayList<Animal>();
+                    animals = new HashMap<String, Animal>();
                     
                     while (resultSet.next()) {
                         id = resultSet.getString("Id");
@@ -76,7 +77,7 @@ public class AnimalDAOMySQL implements AnimalDAO {
                                 "Date_Added", LocalDate.class);
                         lastFeedingTime = resultSet.getObject(
                                 "Last_Feeding_Time", LocalDateTime.class);
-                        animals.add(new Animal(
+                        animals.put(LocalDateTime.now().toString(), new Animal(
                                 id,
                                 name,
                                 species,
@@ -114,7 +115,7 @@ public class AnimalDAOMySQL implements AnimalDAO {
         if (null != checkAnimal) {
             throw new AnimalDataException("Animal names must be unique...");
         }
-        animals.add(animal);
+        animals.put(LocalDateTime.now().toString(), animal);
         try {
             Connection conn = buildConnection();
             CallableStatement callableStatement
@@ -141,8 +142,14 @@ public class AnimalDAOMySQL implements AnimalDAO {
         
     }
     
+//    @Override
+//    public ArrayList<Animal> getAllAnimals() throws AnimalDataException {
+//        verifyAnimalList();
+//        return animals;
+//    }
+    
     @Override
-    public ArrayList<Animal> getAllAnimals() throws AnimalDataException {
+    public HashMap<String, Animal> getAllAnimals() throws AnimalDataException {
         verifyAnimalList();
         return animals;
     }
@@ -151,13 +158,22 @@ public class AnimalDAOMySQL implements AnimalDAO {
     public Animal getAnimalByAnimalName(String name) throws AnimalDataException {
         Animal animal = null;
         verifyAnimalList();
-        for(Animal tempAnimal : animals) {
-            if(tempAnimal.getName().equals(name)) {
-                animal = tempAnimal;
+        
+        for(HashMap.Entry<String, Animal> entry: animals.entrySet()) {
+            if(entry.getValue().getName().equals(name)) {
+                animal = entry.getValue();
                 break;
             }
-        
         }
+        
+//        for(Animal tempAnimal : animals) {
+//            if(tempAnimal.getName().equals(name)) {
+//                animal = tempAnimal;
+//                break;
+//            }
+//        
+//        }
+        
         return animal;
     }
     

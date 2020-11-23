@@ -1,12 +1,13 @@
 package edu.kcc.animal;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Animal implements Comparable<Animal>{
+public class Animal implements Comparable<Animal>, Serializable {
     private String id;
     private static List<String> idList = new ArrayList<>();
     private String name;
@@ -18,6 +19,7 @@ public class Animal implements Comparable<Animal>{
     private BigDecimal weight;
     private LocalDate dateAdded;
     private LocalDateTime lastFeedingTime;
+    private LocalDateTime lastLookup;
 
     public Animal(String id, String name, String species, String gender, int age, boolean fixed,
             int legs, BigDecimal weight, LocalDate dateAdded, 
@@ -33,6 +35,7 @@ public class Animal implements Comparable<Animal>{
         setWeight(weight);
         setDateAdded(dateAdded);
         setLastFeedingTime(lastFeedingTime);
+        lastLookup = LocalDateTime.of(2020, 1, 1, 01, 00);
     }
     
     public Animal() {
@@ -47,6 +50,7 @@ public class Animal implements Comparable<Animal>{
         weight = BigDecimal.valueOf(0);
         dateAdded = LocalDate.of(2020, 9, 1); // September 1, 2020
         lastFeedingTime = LocalDateTime.of(2020, 10, 1, 23, 59); // October 1, 2020 at 11:59pm
+        lastLookup = LocalDateTime.of(2020, 1, 1, 01, 00);
     }
     
     public String getId(){
@@ -230,6 +234,21 @@ public class Animal implements Comparable<Animal>{
                     + " two days in the past");
         } else if (LocalDateTime.now().isBefore(ldt)){
             throw new IllegalArgumentException(ldt + " is in the future.");
+        }
+    }
+    
+    public LocalDateTime getLastLookup() {
+        return this.lastLookup;
+    }
+    
+    public void setLastLookup(LocalDateTime ldt) {
+        lastLookupValidator(ldt);
+        this.lastLookup = ldt;
+    }
+    
+    public void lastLookupValidator(LocalDateTime ldt) {
+        if(ldt.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException(ldt + " cannot be a future date.");
         }
     }
 

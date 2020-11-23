@@ -1,18 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.kcc.animal.data;
 
 import edu.kcc.animal.Animal;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
  * @author spark
  */
-public interface AnimalDAO {
+public interface AnimalDAO extends Serializable {
     
     /*
     * Creates a new Animal record based on the values supplied in Animal.
@@ -40,7 +37,7 @@ public interface AnimalDAO {
     * @return list of Animal records
     * @throws AnimalDataException
     */
-    ArrayList<Animal> getAllAnimals() 
+    HashMap<String, Animal> getAllAnimals() 
             throws AnimalDataException;
     
     /*

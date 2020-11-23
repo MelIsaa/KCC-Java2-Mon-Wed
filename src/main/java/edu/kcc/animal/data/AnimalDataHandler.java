@@ -10,5 +10,5 @@ package edu.kcc.animal.data;
  * @author Ryan
  */
 public interface AnimalDataHandler {
-    void handleTask(AnimalDAO dao);
+    void handleTask();
 }
